@@ -22,13 +22,18 @@
 ASE package interface
 '''
 
+import scipy
 import numpy as np
 from ase.calculators.calculator import Calculator
 import ase.dft.kpoints
 
+BOHR_TO_ANGSTROM = (
+    scipy.constants.physical_constants["Bohr radius"][0] / scipy.constants.angstrom
+)
+HARTREE_TO_EV = scipy.constants.physical_constants["Hartree energy in eV"][0]
 
-convert_energy = 27.2114  # hartree to eV
-convert_forces = -27.2114 / 0.529177  # Bohr to Angstrom
+convert_energy = HARTREE_TO_EV
+convert_forces = -HARTREE_TO_EV / BOHR_TO_ANGSTROM
 
 
 def pyscf_to_ase_atoms(cell):

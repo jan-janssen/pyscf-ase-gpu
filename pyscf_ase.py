@@ -26,6 +26,11 @@ import numpy as np
 from ase.calculators.calculator import Calculator
 import ase.dft.kpoints
 
+
+convert_energy = 27.2114  # hartree to eV
+convert_forces = -27.2114 / 0.529177  # Bohr to Angstrom
+
+
 def pyscf_to_ase_atoms(cell):
     '''
     Convert PySCF Cell/Mole object to ASE Atoms object
@@ -115,7 +120,11 @@ class PySCF(Calculator):
         for key in self.mf_dict:
             self.mf.__dict__[key] = self.mf_dict[key]
 
-        self.results['energy']=self.mf.scf()
+        # Begin - Calculate Forces and Energy
+        self.results['forces'] = self.mf.nuc_grad_method().kernel() * convert_forces
+        self.results['energy']=self.mf.scf() * convert_energy
+        # End - Calculate Forces and Energy
+        # self.results['energy']=self.mf.scf()
         self.results['mf']=self.mf
 
 def make_kpts(cell, nks):

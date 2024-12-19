@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+
 # Copyright 2014-2020 The PySCF Developers. All Rights Reserved.
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
@@ -97,6 +98,18 @@ class PySCF(Calculator):
         calc_molcell = self.molcell.copy()
         calc_molcell.atom = ase_atoms_to_pyscf(atoms)
         calc_molcell.a = np.asarray(atoms.cell)
+        # Begin - Set charges and spins
+        if hasattr(atoms, "info"):
+            if isinstance(atoms.info, dict):
+                charge = atoms.info.get("charge", None)
+                uhf = atoms.info.get("uhf", None)
+        if charge is None:  # Read from initial charges
+            charge = np.sum(atoms.get_initial_charges())
+        if uhf is None:  # Read from initial magnetic moments
+            uhf = np.sum(atoms.get_initial_magnetic_moments())
+        calc_molcell.charge = charge
+        calc_molcell.spin = uhf
+        # End - Set charges and spins
         calc_molcell.build(None,None)
         self.mf = self.mf_class(calc_molcell)
         for key in self.mf_dict:

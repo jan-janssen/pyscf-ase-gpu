@@ -56,10 +56,9 @@ def ase_atoms_to_pyscf(ase_atoms):
 atoms_from_ase = ase_atoms_to_pyscf
 
 class PySCF(Calculator):
-    implemented_properties = ['energy']
+    implemented_properties = ['energy', 'forces']
 
-    def __init__(self, restart=None, ignore_bad_restart_file=False,
-                 label='PySCF', atoms=None, scratch=None, **kwargs):
+    def __init__(self, restart=None, label='PySCF', atoms=None, scratch=None, **kwargs):
         """Construct PySCF-calculator object.
 
         Parameters
@@ -71,8 +70,7 @@ class PySCF(Calculator):
         mfclass: PySCF mean-field class
         molcell: PySCF :Mole: or :Cell:
         """
-        Calculator.__init__(self, restart=None, ignore_bad_restart_file=False,
-                            label='PySCF', atoms=None, scratch=None, **kwargs)
+        Calculator.__init__(self, restart=restart, label=label, atoms=atoms, scratch=scratch, **kwargs)
 
         # TODO
         # This explicitly refers to "cell". How to refer
@@ -94,7 +92,7 @@ class PySCF(Calculator):
         if changed_parameters:
             self.reset()
 
-    def calculate(self, atoms=None, properties=['energy'],
+    def calculate(self, atoms=None, properties=['energy', 'forces'],
                   system_changes=['positions', 'numbers', 'cell',
                                   'pbc', 'charges','magmoms']):
 
@@ -114,15 +112,15 @@ class PySCF(Calculator):
             uhf = np.sum(atoms.get_initial_magnetic_moments())
         calc_molcell.charge = charge
         calc_molcell.spin = uhf
+        calc_molcell.verbose = 0
         # End - Set charges and spins
         calc_molcell.build(None,None)
         self.mf = self.mf_class(calc_molcell)
         for key in self.mf_dict:
             self.mf.__dict__[key] = self.mf_dict[key]
-
         # Begin - Calculate Forces and Energy
+        self.results['energy'] = self.mf.scf() * convert_energy
         self.results['forces'] = self.mf.nuc_grad_method().kernel() * convert_forces
-        self.results['energy']=self.mf.scf() * convert_energy
         # End - Calculate Forces and Energy
         # self.results['energy']=self.mf.scf()
         self.results['mf']=self.mf

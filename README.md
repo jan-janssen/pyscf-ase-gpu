@@ -25,3 +25,9 @@ Output:
  [-1.09305783e-13  1.20452916e+00 -8.30453138e-01]
  [-9.50707678e-14 -1.20452916e+00 -8.30453138e-01]]
 ```
+
+## References:
+* [pyscf/gpu4pyscf](https://github.com/pyscf/gpu4pyscf)
+* [pyscf/pyscf_ase](https://github.com/pyscf/pyscf/blob/master/pyscf/pbc/tools/pyscf_ase.py)
+* [heini-phys-chem/ASE_calculators](https://github.com/heini-phys-chem/ASE_calculators)
+* [chelleorc/pyscf_ase_github](https://github.com/chelleorc/pyscf_ase_github)
